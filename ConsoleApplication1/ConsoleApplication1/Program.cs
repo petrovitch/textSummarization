@@ -463,9 +463,15 @@ namespace ConsoleApplication1
         };
         for (int i = 0; i < stopWordsList.Length; i++)
         {
-            int index;
-                string wordToRemove = " " + stopWordsList[i] + " ";
-            while((index = para.IndexOf(wordToRemove)) != -1)
+            int index,j;
+            char[] wordUpper = stopWordsList[i].ToCharArray();
+            string wordToRemoveUpper = wordUpper[0].ToString().ToUpper();
+            for(j=1; j<wordUpper.Length; j++)
+            {
+                    wordToRemoveUpper += wordUpper[j].ToString();
+            }
+            string wordToRemove = " " + stopWordsList[i] + " ";
+            while((index = para.IndexOf(wordToRemove)) != -1  || (index = para.IndexOf(wordToRemoveUpper)) != -1)
             {
                 para = para.Remove(index , stopWordsList[i].Length+1);
             }
@@ -483,19 +489,21 @@ namespace ConsoleApplication1
             double[] sf_2 = new double[sentences.Length];
             double[] sf_8 = new double[sentences.Length];
             double[] sf_3 = new double[sentences.Length];
+            double[] sf_6 = new double[sentences.Length];
             double[] total = new double[sentences.Length];
             sentenceFeature3(sentences,sf_3,para);
             sentenceFeature2(sentences, sf_2);
             sentenceFeature8(sentences, sf_8);
+            sentenceFeature6(sentences, sf_6);
             for (i = 0; i < sentences.Length; i++)
             {
-                total[i] = sf_2[i] + sf_3[i] + sf_8[i];
+                total[i] = sf_2[i] + sf_3[i] + sf_8[i] + sf_6[i];
             }
-            for (i = 0; i < sentences.Length; i++)
+            /*for (i = 0; i < sentences.Length; i++)
             {
-                Debug.WriteLine("sentence feature 2 " + sf_2[i] + "sentence feature 3 " + sf_3[i] + "sentence feature 8 " + sf_8[i]);
+                Debug.WriteLine("sentence feature 2 " + sf_2[i] + "sentence feature 3 " + sf_3[i] + "sentence feature 8 " + sf_8[i] + "sentence feature 6 " + sf_6[i]);
                 Debug.WriteLine(total[i]);
-            }
+            }*/
             int maxInd = 0, lineDispCount = 5;
             string result=" ";
             while (lineDispCount-- > 0)
@@ -559,8 +567,6 @@ namespace ConsoleApplication1
             double max = 0;
             foreach (string sentence in sentences)
             {
-            
-                //var fixedInput = Regex.Replace(sentence, "[^a-zA-Z0-9% _]", string.Empty);
                 var splitted = sentence.Split(' ');
                 sf_3[i] = 0;
                 for (int start = 0; start < splitted.Length; start++)
@@ -598,14 +604,42 @@ namespace ConsoleApplication1
 
         }
 
+        static void sentenceFeature6(string[] sentences , double[] sf_6)
+        {
+            int i,count,totCount=0,j=0;
+            foreach(string sentence in sentences)
+            {
+                count = 0;
+                for(i=0; i<sentence.Length-2; i++)
+                {
+                    if((sentence[i+1] >= 65 && sentence[i+1] <= 90) || (sentence[i+1] >= 97 && sentence[i+1] <= 122))
+                    {
+
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    if(sentence[i] == ' ' && sentence[i+1].ToString().Equals(sentence[i+1].ToString().ToUpper()) && sentence[i+2] != ' ' )
+                    {
+                        count++;
+                        totCount++;
+                    }
+                }
+                sf_6[j++] = count;
+           
+            }
+            for(j=0; j<sentences.Length; j++)
+            {
+                sf_6[j] /= totCount;
+            }
+        }
 
         static void Main(string[] args)
         {
-            string para = "An increasingly important task in the current era of information overload, text summarization has become an important and timely tool for helping and interpreting the large volumes of text available in documents. The goal of text summarization is to present the most important information in a shorter version of the original text while keeping its main content and helps the user to quickly understand large volumes of information. Text summarization addresses both the problem of selecting the most important sections of text and the problem of generating coherent summaries.This process is significantly different from that of human based text summarization since human can capture and relate deep meanings and themes of text documents while automation of such a skill is very difficult to implement. Automatic text summarization researchers since Luhn work [1], they are trying to solve or at least relieve that problem by proposing techniques for generating summaries. The summaries serve as quick guide to interesting information, providing a short form for each document in the document set; reading summary makes decision about reading the whole document or not, it also serves as time saver.A number of researchers have proposed techniques for automatic text summarization which can be classified into two categories: extraction and abstraction.Extraction summary is a selection of sentences or phrases from the original text with the highest score and put it together to a new shorter text without changing the source text.Abstraction summary method uses linguistic methods to examine and interpret the text.Most of the current automated text summarization system use extraction method to produce summary.Automatic text summarization works best on well - structured documents, such as news, reports, articles and scientific papers. The first step in summarization by extraction is the identification of important features such as sentence length, sentence location[11], term frequency[6], number of words occurring in title[5], number of proper nouns[14] and number of numerical data[13].In our approach, we utilize a feature fusion technique to discover which features out of the available ones are most useful. In this paper, we propose text summarization based on fuzzy logic method to extract important sentences as a summary.The rest of this paper is organized as follows. Section II presents the summarization approach.Section III describes preprocessing and the important features.Section IV and V describes our proposed, followed by experimental design, experimental results and evaluation.Finally, we conclude and suggest future work that can be carried out in Section VI.";
+            string para = "An increasingly important task in the current era of information overload, text summarization has become an important and timely tool for helping and interpreting the large volumes of text available in documents. The goal of text summarization is to present the most important information in a shorter version of the original text while keeping its main content and helps the user to quickly understand large volumes of information. Text summarization addresses both the problem of selecting the most important sections of text and the problem of generating coherent summaries. This process is significantly different from that of human based text summarization since human can capture and relate deep meanings and themes of text documents while automation of such a skill is very difficult to implement. Automatic text summarization researchers since Luhn work [1], they are trying to solve or at least relieve that problem by proposing techniques for generating summaries. The summaries serve as quick guide to interesting information, providing a short form for each document in the document set; reading summary makes decision about reading the whole document or not, it also serves as time saver. A number of researchers have proposed techniques for automatic text summarization which can be classified into two categories: extraction and abstraction. Extraction summary is a selection of sentences or phrases from the original text with the highest score and put it together to a new shorter text without changing the source text. Abstraction summary method uses linguistic methods to examine and interpret the text. Most of the current automated text summarization system use extraction method to produce summary. Automatic text summarization works best on well - structured documents, such as news, reports, articles and scientific papers. The first step in summarization by extraction is the identification of important features such as sentence length, sentence location[11], term frequency[6], number of words occurring in title[5], number of proper nouns[14] and number of numerical data[13]. In our approach, we utilize a feature fusion technique to discover which features out of the available ones are most useful. In this paper, we propose text summarization based on fuzzy logic method to extract important sentences as a summary. The rest of this paper is organized as follows. Section II presents the summarization approach. Section III describes preprocessing and the important features. Section IV and V describes our proposed, followed by experimental design, experimental results and evaluation. Finally, we conclude and suggest future work that can be carried out in Section VI.";
             string result = textSummarizer(para);
             Debug.WriteLine(result);
-                      
-
         }
     }
 }
